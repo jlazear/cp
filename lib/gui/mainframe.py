@@ -1,4 +1,6 @@
+import sys
 import inspect
+import time
 
 import wx
 import  wx.lib.scrolledpanel as scrolled
@@ -39,7 +41,7 @@ class MainFrame(wx.Frame):
 
         self.Layout()
 
-        self.Bind(wx.EVT_CLOSE, self.onClose, self)
+        # self.Bind(wx.EVT_CLOSE, self.onClose, self)
 
     def populate_commands(self):
         """
@@ -50,10 +52,20 @@ class MainFrame(wx.Frame):
         for name, method in methodslist:
             try:
                 if method.command:
+                    # Create the command button
                     bCmd = wx.Button(self.panel, wx.ID_ANY, name, size=(150,
                                                                         50))
+                    # Set its tooltip to be the docstring
+                    docstring = trim(method.__doc__)
+                    bCmd.SetToolTip(wx.ToolTip(str(docstring)))
+
+                    # Create the arguments controls
                     bsCmd, args = self.create_command(method)
+
+                    # Add button to sizer
                     bsCmd.Prepend(bCmd, 0, wx.EXPAND)
+
+                    # Bind everything
                     bCmd.Bind(wx.EVT_BUTTON, self.onCommand)
                     self.cmddict[name] = args
                     self.bsMain.Add(bsCmd, 0, wx.EXPAND, 5)
@@ -114,11 +126,11 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(self.menuBar)
 
-        self.Bind(wx.EVT_MENU, self.onClose, self.miQuit)
+        # self.Bind(wx.EVT_MENU, self.onClose, self.miQuit)
 
-    def onClose(self, event):
-        self.app.fGraphFrame.onClose(event)
-        self.Destroy()
+    # def onClose(self, event):
+    #     self.app.fGraphFrame.onClose(event)
+    #     self.Destroy()
 
     # This event handler can't be moved to bindings.py since controls bind to
     # it dynamically as MainFrame is intitialized.
@@ -129,12 +141,45 @@ class MainFrame(wx.Frame):
         method = cmd['method']
         args = cmd['args']
         argdict = {}
+        print "method.argdict = ", method.argdict #DELME
         for argname, argctrl in args.items():
             try:
                 afunc = method.argdict[argname]['afunc']
             except (AttributeError, KeyError):
                 afunc = lambda x: x
             argdict[argname] = afunc(argctrl.GetValue())
-        method(**argdict)
+        retval = method(**argdict)
+        try:
+            self.app.pyo.switch_file(retval)
+            self.app.pyo.plot()
+            time.sleep(1.)
+        except AttributeError:
+            print "PyOscope not yet initialized..."
+        except IOError:  # Print retval if standard return
+            print retval
 
-
+def trim(docstring):
+    """Trim a docstring according to PEP 257."""
+    if not docstring:
+        return ''
+    # Convert tabs to spaces (following the normal Python rules)
+    # and split into a list of lines:
+    lines = docstring.expandtabs().splitlines()
+    # Determine minimum indentation (first line doesn't count):
+    indent = sys.maxint
+    for line in lines[1:]:
+        stripped = line.lstrip()
+        if stripped:
+            indent = min(indent, len(line) - len(stripped))
+    # Remove indentation (first line is special):
+    trimmed = [lines[0].strip()]
+    if indent < sys.maxint:
+        for line in lines[1:]:
+            trimmed.append(line[indent:].rstrip())
+    # Strip off trailing and leading blank lines:
+    while trimmed and not trimmed[-1]:
+        trimmed.pop()
+    while trimmed and not trimmed[0]:
+        trimmed.pop(0)
+    # Return a single string:
+    return '\n'.join(trimmed)

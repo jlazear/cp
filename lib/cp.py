@@ -8,6 +8,8 @@ from functools import wraps
 # import wx
 # import  wx.lib.scrolledpanel as scrolled
 
+import readers
+
 from lib.gui.app import CPApp
 
 
@@ -29,6 +31,7 @@ def command(f):
     Specifies that the method is to be used as a command.
     """
     f.command = True
+    # Check if the argspec has been cached and cache if not yet done
     try:
         f.argspec
     except AttributeError:
@@ -51,6 +54,7 @@ def argument(argname, argtype, **kwargs):
     Specifies how a particular argument should be treated.
     """
     def _decorator(f):
+        # Check if the argspec has been cached and cache if not yet done
         try:
             f.argspec
         except AttributeError:
@@ -71,3 +75,28 @@ def argument(argname, argtype, **kwargs):
         return _argument
     return _decorator
 
+def reader(readername, *args, **kwargs):
+    """
+    Specifies what reader should be used to read the file.
+    """
+    def _decorator(f):
+        # Check if the argspec has been cached and cache if not yet done
+        try:
+            f.argspec
+        except AttributeError:
+            f.argspec = inspect.getargspec(f)
+        if isinstance(readername, types.StringTypes):
+            readerdict = dict(inspect.getmembers(readers, inspect.isclass))
+            readerfunc = readerdict[readername]
+        else:
+            readerfunc = readername
+        arg = {'reader': readerfunc, 'args': args, 'kwargs': kwargs}
+        try:
+            f.argdict['_reader'] = arg
+        except AttributeError:
+            f.argdict = {'_reader': arg}
+        @wraps(f)
+        def _reader(self, *args2, **kwargs2):
+            return f(self, *args2, **kwargs2)
+        return _reader
+    return _decorator
