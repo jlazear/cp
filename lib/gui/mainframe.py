@@ -1,9 +1,10 @@
 import sys
 import inspect
 import time
+import os
 
 import wx
-import  wx.lib.scrolledpanel as scrolled
+import wx.lib.scrolledpanel as scrolled
 
 
 class NoDefault(object):
@@ -40,8 +41,6 @@ class MainFrame(wx.Frame):
         self.panel.SetupScrolling()
 
         self.Layout()
-
-        # self.Bind(wx.EVT_CLOSE, self.onClose, self)
 
     def populate_commands(self):
         """
@@ -126,12 +125,6 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(self.menuBar)
 
-        # self.Bind(wx.EVT_MENU, self.onClose, self.miQuit)
-
-    # def onClose(self, event):
-    #     self.app.fGraphFrame.onClose(event)
-    #     self.Destroy()
-
     # This event handler can't be moved to bindings.py since controls bind to
     # it dynamically as MainFrame is intitialized.
     def onCommand(self, event):
@@ -141,7 +134,6 @@ class MainFrame(wx.Frame):
         method = cmd['method']
         args = cmd['args']
         argdict = {}
-        print "method.argdict = ", method.argdict #DELME
         for argname, argctrl in args.items():
             try:
                 afunc = method.argdict[argname]['afunc']
@@ -149,10 +141,15 @@ class MainFrame(wx.Frame):
                 afunc = lambda x: x
             argdict[argname] = afunc(argctrl.GetValue())
         retval = method(**argdict)
+        time.sleep(1.)
         try:
+            try:
+                if not os.path.isfile(retval):
+                    raise IOError
+            except TypeError:
+                raise IOError
             self.app.pyo.switch_file(retval)
             self.app.pyo.plot()
-            time.sleep(1.)
         except AttributeError:
             print "PyOscope not yet initialized..."
         except IOError:  # Print retval if standard return

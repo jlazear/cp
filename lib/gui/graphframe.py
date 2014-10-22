@@ -1,14 +1,15 @@
 """
 The Graph Frame for the CP app.
 """
-import matplotlib
-matplotlib.use('WXAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import \
     FigureCanvasWxAgg as FigCanvas, \
     NavigationToolbar2WxAgg as NavigationToolbar
 
 import wx
+
+from channelpanel import ChannelPanel
+
 
 class GraphFrame(wx.Frame):
     """
@@ -23,14 +24,36 @@ class GraphFrame(wx.Frame):
 
         self.panel = wx.Panel(self)
 
-        bsPlot, cPlot, tbPlot = self.make_canvas(self.panel)
+        # Splitter pane
+        self.splMain = wx.SplitterWindow(self.panel, wx.ID_ANY,
+                                         style=wx.SP_LIVE_UPDATE)
+        self.splMain.SetMinimumPaneSize(150)
+
+        # Plot figure canvas
+        self.wPlot = wx.Window(self.splMain, style=wx.BORDER_SUNKEN)
+        bsPlot, cPlot, tbPlot = self.make_canvas(self.wPlot)
         self.bsPlot = bsPlot
         self.cPlot = cPlot
         self.tbPlot = tbPlot
 
-        self.panel.SetSizer(self.bsPlot)
+        self.wPlot.SetSizer(self.bsPlot)
 
-        self.Bind(wx.EVT_CLOSE, self.onClose, self)
+        # Channel selection panel
+        self.wRight = wx.Window(self.splMain)
+        self.bsRight = wx.BoxSizer(wx.VERTICAL)
+        self.pChannels = ChannelPanel(self.wRight)
+
+        self.bsRight.Add(self.pChannels, 1, wx.EXPAND | wx.TOP)
+        self.wRight.SetSizer(self.bsRight)
+
+        # Add subwindows to splitter
+        self.splMain.SplitVertically(self.wPlot, self.wRight, 800)
+
+        self.bsMain = wx.BoxSizer(wx.VERTICAL)
+        self.bsMain.Add(self.splMain, 1, wx.ALL | wx.EXPAND)
+
+        self.panel.SetSizer(self.bsMain)
+        self.Layout()
 
     def make_canvas(self, parent, fig=None, tb=True):
         if fig is None:
@@ -74,17 +97,14 @@ class GraphFrame(wx.Frame):
         oldtoolbar = self.tbPlot
         # oldsizer = self.bsPlot  # Automatically destroyed when unattached
 
-        bsPlot, cPlot, tbPlot = self.make_canvas(self.panel,
+        bsPlot, cPlot, tbPlot = self.make_canvas(self.wPlot,
                                                  fig=newfigure)
         self.bsPlot = bsPlot
         self.cPlot = cPlot
         self.tbPlot = tbPlot
 
-        self.panel.SetSizer(self.bsPlot)
+        self.wPlot.SetSizer(self.bsPlot)
         self.bsPlot.Layout()
 
         oldcanvas.Destroy()
         oldtoolbar.Destroy()
-
-    def onClose(self, event):
-        self.Destroy()

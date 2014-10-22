@@ -2,12 +2,6 @@ import inspect
 import types
 from functools import wraps
 
-# import matplotlib
-# matplotlib.interactive(False)
-# matplotlib.use('WXAgg')
-# import wx
-# import  wx.lib.scrolledpanel as scrolled
-
 import readers
 
 from lib.gui.app import CPApp
@@ -26,6 +20,7 @@ def Controller(cls):
         app.MainLoop()
     return _controller
 
+
 def command(f):
     """
     Specifies that the method is to be used as a command.
@@ -41,6 +36,7 @@ def command(f):
         return f(self, *args, **kwargs)
     return _command
 
+
 argfuncdict = {'float': float,
                'string': str,
                'int': int,
@@ -48,6 +44,7 @@ argfuncdict = {'float': float,
                'list': list,
                'dict': dict,
                'eval': eval}
+
 
 def argument(argname, argtype, **kwargs):
     """
@@ -74,6 +71,7 @@ def argument(argname, argtype, **kwargs):
             return f(self, *args, **kwargs)
         return _argument
     return _decorator
+
 
 def reader(readername, *args, **kwargs):
     """
