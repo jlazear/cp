@@ -55,6 +55,10 @@ This will install the PyPI version of
 `pyoscope` may be installed directly from GitHub with  
 
     pip install git+git://github.com/jlazear/pyoscope.git
+    
+Note that `cp` requires [wxPython](http://www.wxpython.org). `pip` will 
+attempt to install it, but you're probaby on your own for actually getting it
+ to work.  
 
 Author
 ------

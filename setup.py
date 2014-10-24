@@ -10,6 +10,5 @@ setup(name='CP',
       url='https://github.com/jlazear/cp',
       py_modules=['cp',],
       packages=['gui'],
-      install_requires=['PyOscope'],
-      dependency_links=['https://github.com/jlazear/pyoscope/archive/e2ab13f8764b5a64f928884c48c9e963eb57a1fa.zip']
+      install_requires=['PyOscope', 'wxpython'],
       )
