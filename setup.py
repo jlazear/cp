@@ -10,7 +10,7 @@ setup(name='CP',
       url='https://github.com/jlazear/cp',
       py_modules=['cp',],
       packages=['gui'],
-      install_requires=['pyoscope>=1.0'],
+      install_requires=['pyoscope==1.0'],
       dependency_links=['https://github.com/jlazear/pyoscope/archive/master'
                         '.zip#egg=pyoscope-1.0'],
       )
