@@ -12,5 +12,5 @@ setup(name='CP',
       packages=['gui'],
       install_requires=['pyoscope>=1.0'],
       dependency_links=['https://github.com/jlazear/pyoscope/archive/master'
-                        '.zip'],
+                        '.zip#egg=pyoscope-1.0'],
       )
