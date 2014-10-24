@@ -3,13 +3,13 @@ An example file demonstrating the basic functionality of cp.
 """
 import os
 
-from lib import Controller, command, argument, reader
+from cp import Controller, command, argument, reader
 
 
 @Controller
 class Ctrl(object):
     def __init__(self):
-        fnames = ['cmd1.txt', 'cmd2.txt', 'cmd3.txt', 'hi_paul.txt']
+        fnames = ['cmd1.txt', 'cmd2.txt', 'cmd3.txt']
         for fname in fnames:
             try:
                 os.remove(fname)
@@ -26,6 +26,7 @@ class Ctrl(object):
         return fname
 
     @command
+    @argument('arg1', 'int')
     def cmd2(self, arg1=10, arg2=512, third=314):
         print "cmd2: {0} {1} {2}".format(repr(arg1), repr(arg2), repr(third))
         fname = 'cmd2.txt'
