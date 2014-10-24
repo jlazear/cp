@@ -1,5 +1,5 @@
 """
-A test file.
+An example file demonstrating the basic functionality of cp.
 """
 import os
 
@@ -18,14 +18,15 @@ class Ctrl(object):
 
     @command
     @reader('HexReader')
-    def cmd1(self, arg1=1, arg2='b'):
+    def cmd1(self, arg1=1, arg2='5'):
         """cmd1's docstring!"""
         print "cmd1: {0} {1}".format(repr(arg1), repr(arg2))
         fname = 'cmd1.txt'
+        self.dec_write(fname, [arg1, arg2], append=True)
         return fname
 
     @command
-    def cmd2(self, arg1=10, arg2='BB', third=3.14):
+    def cmd2(self, arg1=10, arg2=512, third=314):
         print "cmd2: {0} {1} {2}".format(repr(arg1), repr(arg2), repr(third))
         fname = 'cmd2.txt'
         self.dec_write(fname, [arg1, arg2, third], append=True)
